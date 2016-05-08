@@ -1,0 +1,105 @@
+-- Table: public.auth_assignment
+
+-- DROP TABLE public.auth_assignment;
+
+CREATE TABLE public.auth_assignment
+(
+  item_name character varying(64) NOT NULL,
+  user_id character varying(64) NOT NULL,
+  created_at integer,
+  CONSTRAINT auth_assignment_pkey PRIMARY KEY (item_name, user_id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.auth_assignment
+  OWNER TO userbms;
+
+-- Table: public.auth_item
+
+-- DROP TABLE public.auth_item;
+
+CREATE TABLE public.auth_item
+(
+  name character varying(64) NOT NULL,
+  type integer NOT NULL,
+  description text,
+  rule_name character varying(64),
+  data text,
+  created_at integer,
+  updated_at integer,
+  CONSTRAINT auth_item_pkey PRIMARY KEY (name)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.auth_item
+  OWNER TO userbms;
+
+-- Index: public.public_auth_item_rule_name1_idx
+
+-- DROP INDEX public.public_auth_item_rule_name1_idx;
+
+CREATE INDEX public_auth_item_rule_name1_idx
+  ON public.auth_item
+  USING btree
+  (rule_name COLLATE pg_catalog."default");
+
+-- Index: public.public_auth_item_type2_idx
+
+-- DROP INDEX public.public_auth_item_type2_idx;
+
+CREATE INDEX public_auth_item_type2_idx
+  ON public.auth_item
+  USING btree
+  (type);
+
+-- Table: public.auth_item_child
+
+-- DROP TABLE public.auth_item_child;
+
+CREATE TABLE public.auth_item_child
+(
+  parent character varying(64) NOT NULL,
+  child character varying(64) NOT NULL,
+  CONSTRAINT auth_item_child_pkey PRIMARY KEY (parent, child),
+  CONSTRAINT auth_item_child_child_fkey FOREIGN KEY (child)
+      REFERENCES public.auth_item (name) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT auth_item_child_parent_fkey FOREIGN KEY (parent)
+      REFERENCES public.auth_item (name) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.auth_item_child
+  OWNER TO userbms;
+
+-- Index: public.public_auth_item_child_child1_idx
+
+-- DROP INDEX public.public_auth_item_child_child1_idx;
+
+CREATE INDEX public_auth_item_child_child1_idx
+  ON public.auth_item_child
+  USING btree
+  (child COLLATE pg_catalog."default");
+
+-- Table: public.auth_rule
+
+-- DROP TABLE public.auth_rule;
+
+CREATE TABLE public.auth_rule
+(
+  name character varying(64) NOT NULL,
+  data text,
+  created_at integer,
+  updated_at integer,
+  CONSTRAINT auth_rule_pkey PRIMARY KEY (name)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.auth_rule
+  OWNER TO userbms;
+
